@@ -45,6 +45,7 @@ create table races (
     number int not null,
     name tinytext,
     primary key (race_id),
+    constraint single_race_number_for_regatta unique (regatta_id, number),
     constraint fk_races_regattas_regatta_id foreign key (regatta_id) references regattas(regatta_id) on delete cascade
 );
 
@@ -169,10 +170,40 @@ begin
 end; $$
 delimiter ;
 
+delimiter $$
 drop trigger if exists calculate_points_for_race_result;
-create trigger calculate_points_for_race_result after insert on race_results for each row call update_points_for_race_result(new.place, new.abbreviation, new.race_id);
+create trigger calculate_points_for_race_result before insert on race_results for each row
+begin
+    set new.points = get_points_for_race_result(get_total_competitors_by_regatta_id(get_regatta_id_from_race_id(new.race_id)), new.place, new.abbreviation);
+end; $$
+delimiter ;
 
+delimiter $$
 drop trigger if exists recalculate_points_for_race_result;
-create trigger recalculate_points_for_race_result after update on race_results for each row call update_points_for_race_result(new.place, new.abbreviation, new.race_id);
+create trigger recalculate_points_for_race_result before update on race_results for each row
+begin
+    set new.points = get_points_for_race_result(get_total_competitors_by_regatta_id(get_regatta_id_from_race_id(new.race_id)), new.place, new.abbreviation);
+end; $$
+delimiter ;
 
+delimiter $$
+drop function if exists is_sail_number_present_in_starting_list;
+create function if not exists is_sail_number_present_in_starting_list(sail_number varchar(10), regatta_id integer) returns boolean
+begin
+    declare entriesCount integer;
 
+    set entriesCount = (select count(entry_id) as entriesCount from starting_list where starting_list.regatta_id = regatta_id and starting_list.sail_number = sail_number);
+
+    return entriesCount = 1;
+end; $$
+delimiter ;
+
+delimiter $$
+drop trigger if exists prevent_sail_number_insert_to_race_results;
+create trigger prevent_sail_number_insert_to_race_results before insert on race_results for each row
+begin
+    if not is_sail_number_present_in_starting_list(new.sail_number, get_regatta_id_from_race_id(new.race_id)) then
+    signal sqlstate '45000';
+    end if;
+end;$$
+delimiter ;
