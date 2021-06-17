@@ -127,7 +127,7 @@ begin
     if abbreviation is null then
         set points = place;
     else
-        set points = total_competitors;
+        set points = total_competitors + 1;
     end if;
 
     return points;
@@ -205,5 +205,5 @@ begin
     if not is_sail_number_present_in_starting_list(new.sail_number, get_regatta_id_from_race_id(new.race_id)) then
     signal sqlstate '45000';
     end if;
-end;$$
+end; $$
 delimiter ;
