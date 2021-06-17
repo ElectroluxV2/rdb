@@ -207,3 +207,39 @@ begin
     end if;
 end; $$
 delimiter ;
+
+drop view if exists results;
+create view results as (
+select r1.regatta_id, r1.sail_number, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11 from
+    (select sail_number, regatta_id, concat_ws('|', points, abbreviation) AS 'r1' from race_results join races on race_results.race_id = races.race_id where races.number = 1 group by sail_number, regatta_id) r1
+        join
+    (select sail_number, regatta_id, concat_ws('|', points, abbreviation) AS 'r2' from race_results join races on race_results.race_id = races.race_id  where races.number = 2 group by sail_number, regatta_id) r2
+        join
+    (select sail_number, regatta_id, concat_ws('|', points, abbreviation) AS 'r3' from race_results join races on race_results.race_id = races.race_id  where races.number = 3 group by sail_number, regatta_id) r3
+        join
+    (select sail_number, regatta_id, concat_ws('|', points, abbreviation) AS 'r4' from race_results join races on race_results.race_id = races.race_id  where races.number = 4 group by sail_number, regatta_id) r4
+        join
+    (select sail_number, regatta_id, concat_ws('|', points, abbreviation) AS 'r5' from race_results join races on race_results.race_id = races.race_id  where races.number = 5 group by sail_number, regatta_id) r5
+        join
+    (select sail_number, regatta_id, concat_ws('|', points, abbreviation) AS 'r6' from race_results join races on race_results.race_id = races.race_id  where races.number = 6 group by sail_number, regatta_id) r6
+        join
+    (select sail_number, regatta_id, concat_ws('|', points, abbreviation) AS 'r7' from race_results join races on race_results.race_id = races.race_id  where races.number = 7 group by sail_number, regatta_id) r7
+        join
+    (select sail_number, regatta_id, concat_ws('|', points, abbreviation) AS 'r8' from race_results join races on race_results.race_id = races.race_id  where races.number = 8 group by sail_number, regatta_id) r8
+        join
+    (select sail_number, regatta_id, concat_ws('|', points, abbreviation) AS 'r9' from race_results join races on race_results.race_id = races.race_id  where races.number = 9 group by sail_number, regatta_id) r9
+        join
+    (select sail_number, regatta_id, concat_ws('|', points, abbreviation) AS 'r10' from race_results join races on race_results.race_id = races.race_id  where races.number = 10 group by sail_number, regatta_id) r10
+        join
+    (select sail_number, regatta_id, concat_ws('|', points, abbreviation) AS 'r11' from race_results join races on race_results.race_id = races.race_id  where races.number = 11 group by sail_number, regatta_id) r11
+ON r1.sail_number = r2.sail_number and r1.regatta_id = r2.regatta_id
+and r2.sail_number = r3.sail_number and r2.regatta_id = r3.regatta_id
+and r3.sail_number = r4.sail_number and r3.regatta_id = r4.regatta_id
+and r4.sail_number = r5.sail_number and r4.regatta_id = r5.regatta_id
+and r5.sail_number = r6.sail_number and r5.regatta_id = r6.regatta_id
+and r6.sail_number = r7.sail_number and r6.regatta_id = r7.regatta_id
+and r7.sail_number = r8.sail_number and r7.regatta_id = r8.regatta_id
+and r8.sail_number = r9.sail_number and r8.regatta_id = r9.regatta_id
+and r9.sail_number = r10.sail_number and r9.regatta_id = r10.regatta_id
+and r10.sail_number = r11.sail_number and r10.regatta_id = r11.regatta_id
+);
